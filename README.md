@@ -1,0 +1,142 @@
+
+
+# ascart
+`import "github.com/liamCDI/ascartok"`
+
+* [Overview](#pkg-overview)
+* [Index](#pkg-index)
+* [Subdirectories](#pkg-subdirectories)
+
+## <a name="pkg-overview">Overview</a>
+Package ascart Package Ascii Art Overkill converts an image
+to ascii art for a given `pallet` of ascii characters.
+
+This is done first by running the image through the golang image transformation library `gift`
+The Filter Options string follows the following format `<gift filter name>=<arg1>.<arg2>;<gift filter name>=<arg1>`
+The Filters are run over the image and then the outputed image is sent to the ascii converter
+
+The ascii converter takes the RGB values from the image and converts them to Luma. The Luma is then
+linearly mapped to the given pallet string (IE: luma=0 maps to the first character in teh pallet string)
+
+The command `ascartok` exposes the main method of the library and libascart is a c library wrapper.
+
+Example usage: ascartok -in ./test/gopher.png -plt=" .:OI M" -flt="resize=50,0"
+
+
+                .      O M :I     :  .            
+               O  I:IIOOIIOO:O I:IIOI :           
+             .  O I  O  MM .OIO:I I OI .          
+            .  :I OOM MMMMMMM:MOM.. I  .          
+          O  IO .. IOMMMMMM:.:O I .:II M          
+         I  II I   OMMMMMMO .:O  IMII  .          
+       .  : I.M    OMMMMMMI  OO   IO  :           
+      .   OO OOII  OMMMMMMM IMO   .I:             
+     .  IO:MMMM II IIMMMMMMMM O    OI:            
+       II MMMMMM OI OMMMMMMMMOI    MO ..:         
+    . OIIMMMMM   :O IO MMMMMOI      III O         
+   :  OIMMMMMM: .OO   OOIIOII       M.:  .        
+      I IMMMMMI  IIIO.:IIII          II: I        
+ : :O:MIIMMMMMMMMMO.   :OO           . O          
+:.OI MI IMMMMMMMMM:   OIIOO           .MO :       
+  :O::  O MMMMMMMOO:OOIII:O           IIO O       
+ IOO .   OIMMMM OOOIII:O:O            MMI  :      
+ OMO..    IOIIIOII:IOOIM O             OI: I      
+  :MIO      II    OO: M MII             OOO :     
+. I:IOI             IIM  II             M.:    I  
+    OOIM             O I:I               OO       
+       MM             II                 MMII ::  
+    : OMO                                  OMMM  .
+    : OIO                                  M:M O  
+        M.                                OIM.:   
+     . :II                                .II     
+     . :OMM                               M I..   
+      : III                     OOOI       M:     
+      .O I.M                   IIMMII      :O     
+       . .IO                   I MMMO      OO  .  
+          IIO                 I:OO IO      OIM O  
+        .  ..M                OI IOI       IIO .  
+         . IOO                             IIO .  
+          O : .                            IIO :  
+          . :IO                            II: :  
+             : M                           II: :  
+            :. .                           III :  
+           M OIO                           II: :  
+           : MOO                           II. M  
+              :M                           OI: :  
+              : M                          .O  .  
+                .                           M     
+              O .                         . :     
+                .                         O       
+              O O                         II: I   
+                O                         .O      
+              I .                         M:.OI I 
+              : M                        MIIMM: O.
+              O .                       O :I MOI .
+            O : I                      I :  M.O M 
+	        . OII                    MI I
+	        O  O                   MI I.  :
+	        : :OI.               MI IO:  :   O
+	            .I.           M.O I::   .
+	             IIM      M.OI  I.O
+	          .:  :M:OO.MM  IIOO    O
+	                I MOIOM::     .
+	             M OMMM:        O
+	            O I:MM      II
+	               IM I .
+	            O  .OM
+
+
+
+## <a name="pkg-index">Index</a>
+* [type AscArt](#AscArt)
+  * [func Img2asc(fn string, plte string, flarg string) (*AscArt, error)](#Img2asc)
+  * [func (a *AscArt) String() string](#AscArt.String)
+
+
+#### <a name="pkg-files">Package files</a>
+[giftwrapper.go](/src/github.com/liamCDI/ascartok/giftwrapper.go) [image2pix.go](/src/github.com/liamCDI/ascartok/image2pix.go) 
+
+
+
+
+
+
+## <a name="AscArt">type</a> [AscArt](/src/target/image2pix.go?s=3771:3852#L87)
+``` go
+type AscArt struct {
+    H   int    //Height
+    W   int    //Width
+    Art string //Art
+}
+```
+AscArt holds the ascii art
+
+
+
+
+
+
+
+### <a name="Img2asc">func</a> [Img2asc](/src/target/image2pix.go?s=4100:4167#L106)
+``` go
+func Img2asc(fn string, plte string, flarg string) (*AscArt, error)
+```
+Img2asc returns an ascii art object for a file name
+
+
+
+
+
+### <a name="AscArt.String">func</a> (\*AscArt) [String](/src/target/image2pix.go?s=3854:3886#L93)
+``` go
+func (a *AscArt) String() string
+```
+
+
+
+
+
+
+
+- - -
+Generated by [godoc2md](http://godoc.org/github.com/davecheney/godoc2md)
