@@ -1,0 +1,177 @@
+Making C Libraries with Go
+Baltimore Golang Group
+18:00 6 Mar 2018
+Tags: cgo, C, go, Library
+
+Liam Kelly
+Engineer, Communication Devices Inc
+liamkelly17@gmail.com
+
+* Outline
+
+- Purpose
+- Simple Cgo Non-library Demo
+- Cgo C-Library Components
+- Example
+- Pitfalls
+- Cross-compiling lightning round
+- References
+
+* Purpose
+
+Save you time if you decide to make a C-Library using Go
+
+* Simple Cgo Non-library Demo
+
+.play simple_cgo.go
+
+* Cgo C-Library Components
+
+   package main                                      //Main package
+   /*                                                //PREAMBLE BEGIN
+   #cgo LDFLAGS: -L . -lclibrary                     //CGO Compile Directective
+   #include data_struct.h
+   SOME_MACRO int GatewayLibFunc(struct Thing **in){ //GATEWAY FUNCTION <- used often in Libraries
+        return LibFunc(in)
+   }
+   */                                                //PREAMBLE END
+   import "C"                                        //Import and Indicate that this is a CGO file
+
+   //export LibFunc                                  //CGO Export Directive <- Unique to Libraries
+   func LibFunc ( thing **C.struct_Thing) C.int{
+       ...
+   }
+   main(){}                                          //Empty main function
+
+Cgo Preamble: C code that will be referenced by the Go code.
+Cgo Compile Directives: statements that pass compiler flags
+Cgo Export Directive: Go functions being exposed to C need code
+Gatway function: C Declared function that help expose a Go Function
+
+* Cgo Usage
+
+In most cases, C references can be accessed by just putting `C.` before the name
+Some additional useful functions are
+
+- `C.GoString` and `C.CString` string function
+
+- `C.sizeof_`<C Type name> implements sizeof(<C Type>)
+
+- `C.malloc`(unsafe.Pointer) and `C.free(unsafe.Pointer)` for C malloc in go
+
+- `C.GoBytes`(ptr unsafe.Pointer,len C.int) converts C memory to a Go bytes slice
+
+`unsafe.Pointer` can forcefully cast a pointer to whatever type you need it to be. 
+
+- very similiar to a (void *) in C
+- It is also needed if Go's type checking gets confused (C Double Pointers)
+- often used with uintptr b/c it "is large enough to hold the bit pattern of any pointer"
+
+* Cgo Usage
+
+Go Byte slice to C memory. For C pointer `cptr` and go byte slice `src`
+
+        cgoptr := uintptr(unsafe.Pointer(*cptr))
+        for i := 0; i < len(src); i++ {
+          *(*C.uchar)(unsafe.Pointer(cgoptr)) = C.uchar(src[i])
+          cgoptr++
+        }
+
+C-backed Go Slice without copying
+
+        var theCArray *C.YourType = C.getTheArray()
+        length := C.getTheArrayLength()
+        slice := (*[1 << 30]C.YourType)(unsafe.Pointer(theCArray))[:length:length]
+This will work as long at the pointer array length (currently `1 << 30`) is greater than length. Still not entirely sure why the documentation reccomends something so large.  
+
+* Example - The Setup
+Wrote an image to ascii art library in go leveraging the `gift` package. Need to make it a C library.
+
+Only public function
+.code ../image2pix.go /out/,/\)/
+- 2nd arg is the Ascii pallet from lowest to highest intensity
+- 3rd arg is `gift` filter names and args
+- returns the following struct
+.code ../image2pix.go /^type AscArt struct/,/^}/
+
+* Example - Johnny
+It works pretty well actually
+
+<picture of johnny redacted>
+
+* Example - The C-Library Part 1
+Create a C struct for C application to user as a return value (look at cmd/libascart/main.go in repo)
+.code ../cmd/libascart/main.go 
+
+* Example - Compile and Install
+Makefile - Simple, explicit build. Using `go install` _should_ automate this
+.code ../cmd/libascart/Makefile
+Generated Header - important parts
+.code ../cmd/libascart/libascart.h /line 3/,/ascart;/
+.code ../cmd/libascart/libascart.h /Image2Ascii transform/,/\);/
+
+* Example - The C-Application
+
+.code ../cmd/libascart/test/img2ascii.c
+  gcc -o img2ascii ./img2ascii.c -lascart
+* Pitfalls
+Memory Allocation
+
+- Pitfall: Go memory cannot leave go code or the GArbage Collector will delete it
+- Workaround: If memory need to be allocated for C, it must be malloc'ed by C functions
+.code ../cmd/libascart/main.go /\*out/,/Art\)/
+
+Complex Type Error
+
+- Pitfall: CGO has limited C types it can handle (specifically regarding function signitures)
+- Workaround: Use gateway functions writen in C with the correct signiture in the CGO preamble
+
+* Pitfall Packed Structs
+As Go doesn't support packed struct (e.g., structs where maximum alignment is 1 byte), you can't use packed C struct in Go. Even if you program passes compilation, it won't do what you want. To use it, you have to read/write the struct as byte array/slice.
+
+- `C.GoBytes`(ptr unsafe.Pointer,len C.int) converts C memory to a Go bytes slice
+
+- Go Byte slice to C memory. For C pointer `cptr` and go byte slice `src`
+
+        cgoptr := uintptr(unsafe.Pointer(*cptr))
+        for i := 0; i < len(src); i++ {
+          *(*C.uchar)(unsafe.Pointer(cpyptr)) = C.uchar(src[i])
+          cpyptr++
+        }
+
+
+* Pitfall Testing
+CGO Testing
+
+- Pitfall: Testing module will not run when "C" package is imported
+- Workaround: Put the CGO test functions in their own package, then wrap the functions
+.code ./cgo_test.go /START OMIT/,/END OMIT/
+
+* Cross-compiling  
+
+*Must* indicate which packages use Cgo (even non-libraries):
+
+- The cgo tool is enabled by default for native builds on systems where it is expected to work. It is disabled by default when cross-compiling. You can control this by setting the CGO_ENABLED environment variable 
+- CGO_ENABLE appears to be contagious: if a library uses it, then the app should use it.
+
+Go apps that use Cgo libraries may need some linking help
+
+- Go applications do not have cgo flags, but in order to include a Cgo library you may need to add some linking flags by appending the variable CGO_LDFLAGS. 
+- Saw this when there was a blank import of `go-sqlite3`. Had to append `-lpthread' to CGO_LDFLAGS.
+
+* Cross-compiling 
+
+C-Libraries when cross compilied may only have a main package definied and no others. May be a bug.
+
+  -buildmode=c-shared requires exactly one main package
+
+Remove `-linkshared` if you get the following (no context, but should be fixed in a 1.10 release)
+
+  `runtime.islibrary: missing Go type information for global symbol: size 1`
+
+C-shared libraries are given a `.a` suffix when using `go install`.  
+
+
+* References 
+- [[https://github.com/golang/go/wiki/cgo][Cgo Wiki]] - Best resources. This is the github wiki, not the GoDoc.
+- [[https://golang.org/cmd/cgo/#hdr-Passing_pointers][CGO GoDoc- Pointer Passing Rules]] - Pointer passing rules are very important and referenced often.  
