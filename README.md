@@ -22,70 +22,62 @@ The command `ascartok` exposes the main method of the library and libascart is a
 
 Example usage: ascartok -in ./test/gopher.png -plt=" .:OI M" -flt="resize=50,0"
 
-
-                .      O M :I     :  .            
-               O  I:IIOOIIOO:O I:IIOI :           
-             .  O I  O  MM .OIO:I I OI .          
-            .  :I OOM MMMMMMM:MOM.. I  .          
-          O  IO .. IOMMMMMM:.:O I .:II M          
-         I  II I   OMMMMMMO .:O  IMII  .          
-       .  : I.M    OMMMMMMI  OO   IO  :           
-      .   OO OOII  OMMMMMMM IMO   .I:             
-     .  IO:MMMM II IIMMMMMMMM O    OI:            
-       II MMMMMM OI OMMMMMMMMOI    MO ..:         
-    . OIIMMMMM   :O IO MMMMMOI      III O         
-   :  OIMMMMMM: .OO   OOIIOII       M.:  .        
-      I IMMMMMI  IIIO.:IIII          II: I        
- : :O:MIIMMMMMMMMMO.   :OO           . O          
-:.OI MI IMMMMMMMMM:   OIIOO           .MO :       
-  :O::  O MMMMMMMOO:OOIII:O           IIO O       
- IOO .   OIMMMM OOOIII:O:O            MMI  :      
- OMO..    IOIIIOII:IOOIM O             OI: I      
-  :MIO      II    OO: M MII             OOO :     
-. I:IOI             IIM  II             M.:    I  
-    OOIM             O I:I               OO       
-       MM             II                 MMII ::  
-    : OMO                                  OMMM  .
-    : OIO                                  M:M O  
-        M.                                OIM.:   
-     . :II                                .II     
-     . :OMM                               M I..   
-      : III                     OOOI       M:     
-      .O I.M                   IIMMII      :O     
-       . .IO                   I MMMO      OO  .  
-          IIO                 I:OO IO      OIM O  
-        .  ..M                OI IOI       IIO .  
-         . IOO                             IIO .  
-          O : .                            IIO :  
-          . :IO                            II: :  
-             : M                           II: :  
-            :. .                           III :  
-           M OIO                           II: :  
-           : MOO                           II. M  
-              :M                           OI: :  
-              : M                          .O  .  
-                .                           M     
-              O .                         . :     
-                .                         O       
-              O O                         II: I   
-                O                         .O      
-              I .                         M:.OI I 
-              : M                        MIIMM: O.
-              O .                       O :I MOI .
-            O : I                      I :  M.O M 
-	        . OII                    MI I
-	        O  O                   MI I.  :
-	        : :OI.               MI IO:  :   O
-	            .I.           M.O I::   .
-	             IIM      M.OI  I.O
-	          .:  :M:OO.MM  IIOO    O
-	                I MOIOM::     .
-	             M OMMM:        O
-	            O I:MM      II
-	               IM I .
-	            O  .OM
-
-
+ 
+```go
+img=`			
+                              :II        OOOO O:I .:I::I .      OI O.
+                          ..I      :O:OIOIIOOOOI   IIIOOOO::III IIII IOOO:
+                       :       I O:II   IOOI: MMMMMMMMMM MOI IO:M ..O M  OI O
+                   .       :I II   OIO.MMIMMMMMMMMMMMMIOOOM OOOMO..  : MOI.
+                .O     ::III   OI.M    : MMMMMMMMMMMM    .:O:I     I::IMMI ..
+              :I    :IOOIII:O:M       I:MMMMMMMMMMMMMO.  .:MOO       IOO:
+             O   : OOOI:MOM IIIIIII    :OMMMMMMMMMMMMMMMMMMM:I          :    .
+               O I:O .MMMMMMMMMMM II    :IMMMMMMMMMMMMMMMM :I             OO  .
+        II:  :O IM:MMMMMMMMMMI:..:O:O    IOI MMMMMMMMMMM OO              .OI:
+     I      .I.IMMMMMMMMMMMM     :  :O     IOOOOIIIIIOIII                  O I
+        :I: II I.MMMMMMMMMMMMI::::IMI: O:.....OIOOOI                        .M.  .
+     O :I I.M   : MMMMMMMMMMMMMMMMMM:O       :OOOOO:O                        ..:  :
+   :.O  MOIM    I: MMMMMMMMMMMMMMM OOO.::::OIIIIIII:.                         .IO  I
+  I :.OM:  O     IOOI MMMMMMMMM IOOI:OIIIIIOO:OIO.:OI                          .IO
+  O O II IM:        IIOOIIIIIIIII   ::OOO:OI IIMM OI                            . OI
+    O:II  IM                         OOOIO:MMM IMMM:I                            ..II   .    M
+      ::O.:.I                             IOMMMO:IIII                              O .
+           O:OM                            IOIIIII                                  MO.I:MO. O:
+       II   :IOM                                                                      M:MMMMM :I .
+           : .O.M                                                                    I ::: IMOI O
+               OMM                                                                     O
+             : :OMI                                                                    M:OI   O
+              I   IO.                                           IOIOIIII                  I::
+               I  OI O                                          :MMMMM  OI              OM  .
+                O   .I:M                                     IIOOM  MMMI:I              .: .
+                     M:I:                                   I:OOIIIOOIIOO                I I
+                        O:                                  I        II                 MI   .
+                        IO.                                                             MII
+                         IO.                                                            .II
+                       .  :M.                                                           MIM  .
+                        .  .I                                                           MI.  .
+                            MM                                                          MIO.
+                         . : I                                                          :M
+                            .IM                                                         :.O .
+                          ..:O.                                                        MM:I
+                          :  IO                                                       I::: :
+                          : OIO                                                       MMM
+                          . .OO                                                      MO:
+                           ::O.                                                    .O :IMM OO
+                          : .M.                                                 MO. I:OMMMMM .  .
+                          : OO.I                                            M.I. IOOO  OI  .
+                             .OOO                                       M.IO  II O
+                          : IMIO .OM                               M.II.  II : O    O . :
+                          .  :::II  IOM                     MM.OIOM  III:M O     I:       OI
+                                 I OI          M.....OOIIIOM   IIIO.II.:      IO
+                            M:II    I: IOIIOO:I        IIIIOOI:::O        O .
+                                 O      I MM  :OI: OII:::I           O:O
+                                   :: :.MMMMM:.                :. :
+                                  .. .MIMMMIO         OOIII:
+                                  .  O:.: .O
+`
+```
+ 
 
 ## <a name="pkg-index">Index</a>
 * [type AscArt](#AscArt)
